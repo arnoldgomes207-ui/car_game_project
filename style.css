@@ -1,0 +1,99 @@
+body {
+  text-align: center;
+  background: linear-gradient(#0f2027, #203a43, #2c5364);
+  color: white;
+  font-family: Arial;
+}
+
+.gameArea {
+  width: 300px;
+  height: 500px;
+  margin: auto;
+  position: relative;
+  overflow: hidden;
+  border: 4px solid white;
+  background: #333;
+}
+
+/* Road lane lines */
+.gameArea::before {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 100%;
+  left: 145px;
+  background: repeating-linear-gradient(
+    white 0px,
+    white 20px,
+    transparent 20px,
+    transparent 40px
+  );
+  animation: moveRoad 0.5s linear infinite;
+}
+
+/* Animation for moving road */
+@keyframes moveRoad {
+  from {
+    top: 0;
+  }
+  to {
+    top: 40px;
+  }
+}
+
+/* Car styling upgrade */
+/* Car main body */
+.car {
+  width: 50px;
+  height: 100px;
+  position: absolute;
+  bottom: 20px;
+  left: 125px;
+  background: linear-gradient(180deg, #ff1a1a, #800000);
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(255,0,0,0.6);
+}
+
+/* Roof */
+.roof {
+  width: 30px;
+  height: 40px;
+  background: #222;
+  position: absolute;
+  top: 30px;
+  left: 10px;
+  border-radius: 8px;
+}
+
+/* Windshields */
+.windshield {
+  width: 26px;
+  height: 15px;
+  background: #aeefff;
+  position: absolute;
+  left: 12px;
+  border-radius: 4px;
+}
+
+.front {
+  top: 10px;
+}
+
+.back {
+  bottom: 10px;
+}
+
+/* Tires */
+.tire {
+  width: 10px;
+  height: 18px;
+  background: #111;
+  position: absolute;
+  border-radius: 4px;
+}
+
+/* Tire positions */
+.fl { top: 8px; left: -6px; }
+.fr { top: 8px; right: -6px; }
+.bl { bottom: 8px; left: -6px; }
+.br { bottom: 8px; right: -6px; }
