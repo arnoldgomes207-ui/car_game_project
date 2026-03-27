@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coastal Runner - Electric OS</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700&display=swap');
@@ -13,8 +13,7 @@
             font-family: 'Rajdhani', sans-serif; 
             overflow: hidden; 
             color: white; 
-            text-align: center;
-            touch-action: none; /* Prevents zooming/scrolling while playing */
+            text-align: center; 
         }
         
         .hide { display: none !important; }
@@ -38,64 +37,127 @@
         .panel { 
             background: rgba(10, 15, 30, 0.4); 
             backdrop-filter: blur(25px); 
-            padding: 20px; 
+            padding: 40px; 
             border-radius: 20px; 
-            width: 85%;
-            max-width: 350px; 
-            display: flex; flex-direction: column; gap: 15px; 
+            width: 350px; 
+            display: flex; flex-direction: column; gap: 20px; 
             position: relative;
+            overflow: hidden;
             border: 1px solid rgba(0, 242, 255, 0.2);
-            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 30px rgba(0, 242, 255, 0.05);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        .panel h1 { color: #fff; margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 0 0 15px #00f2ff; }
-        
-        .input-group { display: flex; flex-direction: column; text-align: left; gap: 5px; }
-        .input-group label { font-size: 12px; font-weight: bold; color: #00f2ff; }
-        .input-group input { padding: 10px; background: rgba(0,0,0,0.5); border: none; border-bottom: 2px solid #333; color: #fff; font-family: 'Rajdhani', sans-serif; outline: none; }
-        
-        button { background: transparent; color: #00f2ff; border: 2px solid #00f2ff; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; font-family: 'Rajdhani', sans-serif; text-transform: uppercase; }
-        button:hover { background: #00f2ff; color: #000; box-shadow: 0 0 20px #00f2ff; }
-        
-        .lb-list { list-style: none; padding: 0; max-height: 180px; overflow-y: auto; text-align: left; }
-        .lb-item { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); }
-
-        /* --- RESPONSIVE GAME ENVIRONMENT --- */
-        #gameArea { 
-            width: 100%; 
-            max-width: 500px; /* Limits width on large laptops */
-            height: 100vh; 
-            margin: auto; 
-            position: relative; 
-            overflow: hidden; 
-            background: black; 
+        @keyframes popIn {
+            from { transform: scale(0.95); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
         }
 
-        .scenery-city { position: absolute; left: 0; top: 0; width: 15%; height: 100%; background: #2c3e50; border-right: 4px solid #7f8c8d; z-index: 1; }
-        .scenery-beach { position: absolute; right: 0; top: 0; width: 15%; height: 100%; background: linear-gradient(to right, #f1c40f, #e67e22); border-left: 4px solid #7f8c8d; z-index: 1; }
-        .road { position: absolute; left: 15%; width: 70%; height: 100%; background: #34495e; z-index: 2; }
-        .line { width: 6px; height: 80px; background: rgba(255, 255, 255, 0.4); position: absolute; left: 48%; z-index: 3; }
+        .panel::before {
+            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, #00f2ff, transparent);
+            animation: electricSweep 3s linear infinite;
+        }
+        .panel::after {
+            content: ''; position: absolute; bottom: 0; right: -100%; width: 100%; height: 3px;
+            background: linear-gradient(270deg, transparent, #ff007c, transparent);
+            animation: electricSweep 3s linear infinite 1.5s;
+        }
 
-        .car { width: 45px; height: 85px; position: absolute; border-radius: 8px; z-index: 10; }
-        .player { background: linear-gradient(180deg, #e74c3c, #c0392b); }
+        @keyframes electricSweep { 0% { left: -100%; right: -100%; } 100% { left: 100%; right: 100%; } }
+
+        .panel h1 { color: #fff; margin: 0; font-size: 32px; text-transform: uppercase; letter-spacing: 4px; text-shadow: 0 0 15px #00f2ff, 0 0 30px #00f2ff; }
+        
+        .input-group { display: flex; flex-direction: column; text-align: left; gap: 8px; }
+        .input-group label { font-size: 14px; font-weight: bold; color: #00f2ff; letter-spacing: 2px; }
+        .input-group input { padding: 12px; background: rgba(0,0,0,0.5); border: none; border-bottom: 2px solid #333; color: #fff; font-size: 16px; font-family: 'Rajdhani', sans-serif; outline: none; transition: all 0.3s; }
+        .input-group input:focus { border-bottom: 2px solid #00f2ff; box-shadow: 0 10px 10px -10px rgba(0, 242, 255, 0.5); background: rgba(0, 242, 255, 0.05); }
+        
+        button { background: transparent; color: #00f2ff; border: 2px solid #00f2ff; padding: 15px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; font-family: 'Rajdhani', sans-serif; text-transform: uppercase; letter-spacing: 2px; }
+        button:hover { background: #00f2ff; color: #000; box-shadow: 0 0 20px #00f2ff, 0 0 40px #00f2ff; transform: translateY(-2px); }
+        button.secondary { border-color: #ff007c; color: #ff007c; }
+        button.secondary:hover { background: #ff007c; color: #fff; box-shadow: 0 0 20px #ff007c, 0 0 40px #ff007c; }
+        
+        .toggle-link { font-size: 14px; color: #aaa; cursor: pointer; text-decoration: none; transition: 0.3s; }
+        .toggle-link:hover { color: #fff; text-shadow: 0 0 10px #fff; }
+        .error-text { color: #ff004c; font-size: 14px; display: none; text-shadow: 0 0 10px #ff004c; }
+
+        .lb-list { list-style: none; padding: 0; margin: 0; max-height: 220px; overflow-y: auto; text-align: left; scrollbar-width: thin; scrollbar-color: #00f2ff transparent; }
+        .lb-item { display: flex; justify-content: space-between; padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 18px; transition: 0.3s; }
+        .lb-item:hover { background: rgba(0, 242, 255, 0.1); padding-left: 15px; border-left: 3px solid #00f2ff; }
+        .lb-item:nth-child(1) { color: #ffd700; text-shadow: 0 0 10px #ffd700; font-size: 22px; }
+
+        /* --- THE GAME ENVIRONMENT --- */
+        #gameArea { width: 700px; height: 100vh; margin: auto; position: relative; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,1); background: black; }
+        .scenery-city { position: absolute; left: 0; top: 0; width: 150px; height: 100%; background: #2c3e50; border-right: 10px solid #7f8c8d; z-index: 1; }
+        .scenery-beach { position: absolute; right: 0; top: 0; width: 150px; height: 100%; background: linear-gradient(to right, #f1c40f, #e67e22); border-left: 10px solid #7f8c8d; z-index: 1; }
+        .road { position: absolute; left: 150px; width: 400px; height: 100%; background: linear-gradient(#34495e, #2c3e50); z-index: 2; }
+        .line { width: 10px; height: 100px; background: rgba(255, 255, 255, 0.6); position: absolute; left: 195px; z-index: 3; }
+
+        .building { position: absolute; width: 80px; border-radius: 5px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); z-index: 2; }
+        .building::after { content: ""; position: absolute; top: 10%; left: 10%; width: 80%; height: 80%; background-image: repeating-linear-gradient(to bottom, rgba(255, 255, 150, 0.7) 0px, rgba(255, 255, 150, 0.7) 10px, transparent 10px, transparent 20px); background-size: 20px 20px; opacity: 0.6; }
+        .palm-tree { position: absolute; width: 20px; height: 100px; z-index: 2; }
+        .palm-tree::before { content: ""; position: absolute; bottom: 0; left: 5px; width: 10px; height: 100%; background: linear-gradient(to right, #795548, #5d4037); border-radius: 5px 5px 0 0; }
+        .palm-tree::after { content: "🌴"; position: absolute; top: -25px; left: -15px; font-size: 50px; }
+
+        .car { width: 55px; height: 100px; position: absolute; border-radius: 10px 10px 15px 15px; z-index: 10; box-shadow: 0 10px 20px rgba(0,0,0,0.6); }
+        .tire { position: absolute; width: 12px; height: 22px; background: #111; border-radius: 3px; z-index: -1; }
+        .tire.fl { top: 15px; left: -8px; } .tire.fr { top: 15px; right: -8px; } .tire.bl { bottom: 15px; left: -8px; } .tire.br { bottom: 15px; right: -8px; }
+        
+        .player { background: linear-gradient(180deg, #e74c3c, #c0392b); border: 1px solid #a93226; }
+        .player::before { content: ""; position: absolute; top: -15px; left: 5px; width: 45px; height: 20px; background: radial-gradient(circle, rgba(255,255,200,0.8) 0%, rgba(255,255,200,0) 70%); border-radius: 50%; z-index: -1; }
+        .player-details { position: absolute; width: 100%; height: 100%; top: 0; left: 0; }
+        .cockpit { position: absolute; top: 25px; left: 8px; width: 39px; height: 45px; background: #111; border-radius: 8px 8px 5px 5px; border: 2px solid #000; }
+        .spoiler { position: absolute; bottom: 5px; left: -5px; width: 65px; height: 8px; background: #c0392b; border-radius: 2px; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        
         .enemy { background: linear-gradient(180deg, #7f8c8d, #34495e); }
+        .enemy::after { content: ""; position: absolute; top: 20px; left: 10px; width: 35px; height: 50px; background: rgba(0, 0, 0, 0.7); border-radius: 5px; }
 
-        /* --- RESPONSIVE HUD --- */
-        .scoreBoard { position: absolute; top: 10px; left: 10px; font-size: 18px; background: rgba(0, 0, 0, 0.8); padding: 10px; border-radius: 5px; border: 1px solid #00f2ff; z-index: 100; }
+        /* --- NEW: PHYSICAL HUD DASHBOARD --- */
+        #gameHUD { pointer-events: none; }
+        .scoreBoard { position: absolute; top: 20px; left: 20px; font-size: 24px; font-weight: bold; background: rgba(0, 0, 0, 0.8); padding: 15px 25px; border-radius: 8px; border: 2px solid #00f2ff; box-shadow: 0 0 15px rgba(0,242,255,0.4); z-index: 100; }
         
         .physical-dash {
-            position: absolute; bottom: 10px; width: 100%; 
-            display: flex; justify-content: space-around; align-items: flex-end; padding: 0 10px; box-sizing: border-box; z-index: 100;
+            position: absolute; bottom: 20px; width: 700px; left: 50%; transform: translateX(-50%);
+            display: flex; justify-content: space-between; align-items: flex-end; padding: 0 40px; box-sizing: border-box; z-index: 100;
         }
 
-        .speedometer { width: 80px; height: 80px; background: rgba(10, 15, 30, 0.9); border-radius: 50%; border: 2px solid #ff007c; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .speed-text span { font-size: 24px; font-weight: bold; }
-        .speed-text small { font-size: 10px; color: #00f2ff; display: block; }
+        /* Neon Speedometer */
+        .speedometer {
+            position: relative; width: 130px; height: 130px; background: rgba(10, 15, 30, 0.9);
+            border-radius: 50%; border: 3px solid #222;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 242, 255, 0.1);
+            display: flex; justify-content: center; align-items: center;
+        }
+        .speed-ring {
+            position: absolute; width: 100%; height: 100%; border-radius: 50%;
+            border: 5px solid transparent; border-top-color: #ff007c; border-right-color: #ff007c;
+            transform: rotate(-45deg); transition: transform 0.2s ease-out;
+            box-shadow: 0 0 15px #ff007c;
+        }
+        .speed-text { text-align: center; color: #fff; text-shadow: 0 0 10px #00f2ff; margin-top: 10px; }
+        .speed-text span { font-size: 38px; font-weight: bold; }
+        .speed-text small { font-size: 14px; color: #00f2ff; letter-spacing: 2px; display: block; margin-top: -5px;}
 
+        /* Reactive Steering Wheel */
+        .steering-container { perspective: 600px; width: 160px; height: 160px; }
         .steering-wheel {
-            width: 90px; height: 90px; border-radius: 50%; border: 8px solid #111;
-            position: relative; background: rgba(0, 242, 255, 0.1); transition: transform 0.1s linear;
+            width: 100%; height: 100%; border-radius: 50%; border: 15px solid #111;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.9), inset 0 0 20px rgba(0, 242, 255, 0.3);
+            position: relative; background: rgba(0, 242, 255, 0.05);
+            transform-style: preserve-3d; transform: rotateX(30deg);
+            transition: transform 0.1s linear;
         }
+        .wheel-center {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 45px; height: 45px; background: #111; border-radius: 50%;
+            border: 2px solid #00f2ff; box-shadow: 0 0 20px #00f2ff;
+        }
+        .wheel-spoke { position: absolute; background: #111; border: 1px solid #222; }
+        .wheel-spoke.left { top: 50%; left: 0; width: 50%; height: 16px; transform: translateY(-50%); }
+        .wheel-spoke.right { top: 50%; right: 0; width: 50%; height: 16px; transform: translateY(-50%); }
+        .wheel-spoke.bottom { bottom: 0; left: 50%; width: 16px; height: 50%; transform: translateX(-50%); }
+
     </style>
 </head>
 <body>
@@ -103,17 +165,20 @@
     <div id="authOverlay" class="ui-container">
         <div id="loginPanel" class="panel">
             <h1>SYSTEM LOGIN</h1>
-            <div id="loginError" class="error-text hide">ACCESS DENIED</div>
+            <div id="loginError" class="error-text">ACCESS DENIED: Invalid credentials.</div>
             <div class="input-group"><label>USERNAME</label><input type="text" id="logUser"></div>
             <div class="input-group"><label>PASSWORD</label><input type="password" id="logPass"></div>
             <button onclick="handleLogin()">INITIALIZE</button>
             <span class="toggle-link" onclick="toggleAuth('register')">NEW PILOT? REGISTER HERE</span>
         </div>
+
         <div id="registerPanel" class="panel hide">
-            <h1>REGISTER</h1>
-            <div class="input-group"><label>USERNAME</label><input type="text" id="regUser"></div>
-            <div class="input-group"><label>PASSWORD</label><input type="password" id="regPass"></div>
-            <button onclick="handleRegister()">CREATE LINK</button>
+            <h1 style="text-shadow: 0 0 15px #ff007c;">REGISTER</h1>
+            <div id="regError" class="error-text">REGISTRATION FAILED.</div>
+            <div class="input-group"><label style="color:#ff007c;">MOBILE NUMBER</label><input type="tel" id="regMobile"></div>
+            <div class="input-group"><label style="color:#ff007c;">USERNAME</label><input type="text" id="regUser"></div>
+            <div class="input-group"><label style="color:#ff007c;">PASSWORD</label><input type="password" id="regPass"></div>
+            <button class="secondary" onclick="handleRegister()">CREATE LINK</button>
             <span class="toggle-link" onclick="toggleAuth('login')">RETURN TO LOGIN</span>
         </div>
     </div>
@@ -121,39 +186,80 @@
     <div id="menuOverlay" class="ui-container hide">
         <div class="panel">
             <h1>COASTAL RUNNER</h1>
-            <p>WELCOME, <b id="displayUsername" style="color: #00f2ff;">PLAYER</b></p>
+            <p style="font-size: 18px;">WELCOME, <b id="displayUsername" style="color: #00f2ff; text-transform: uppercase;">PLAYER</b></p>
             <button onclick="startGame()">▶ LAUNCH ENGINE</button>
-            <button onclick="showLeaderboard()">≡ LEADERBOARD</button>
+            <button class="secondary" onclick="showLeaderboard()">≡ LEADERBOARD</button>
+            <span class="toggle-link" onclick="logout()">DISCONNECT</span>
         </div>
     </div>
 
     <div id="leaderboardOverlay" class="ui-container hide">
         <div class="panel">
-            <h1>TOP PILOTS</h1>
-            <ul class="lb-list" id="lbList"></ul>
-            <button onclick="backToMenu()">RETURN</button>
+            <h1 style="color: #ffd700; text-shadow: 0 0 15px #ffd700;">TOP PILOTS</h1>
+            <ul class="lb-list" id="lbList">Loading Network Data...</ul>
+            <button class="secondary" onclick="backToMenu()">RETURN TO HUB</button>
         </div>
     </div>
 
     <div id="gameHUD" class="hide">
-        <div class="scoreBoard">SCORE <span id="score">0</span></div>
+        <div class="scoreBoard">SCORE <span id="score" style="color:#00f2ff;">0</span></div>
+        
         <div class="physical-dash">
-            <div class="speedometer"><div class="speed-text"><span id="speedDisplay">0</span><small>KM/H</small></div></div>
-            <div class="steering-wheel" id="steeringWheel"></div>
+            <div class="speedometer">
+                <div class="speed-ring" id="speedRing"></div>
+                <div class="speed-text"><span id="speedDisplay">0</span><small>KM/H</small></div>
+            </div>
+            
+            <div class="steering-container">
+                <div class="steering-wheel" id="steeringWheel">
+                    <div class="wheel-center"></div>
+                    <div class="wheel-spoke left"></div>
+                    <div class="wheel-spoke right"></div>
+                    <div class="wheel-spoke bottom"></div>
+                </div>
+            </div>
         </div>
     </div>
     
     <div id="gameArea" class="hide">
-        <div class="scenery-city"></div>
-        <div class="scenery-beach"></div>
+        <div class="scenery-city" id="citySide"></div>
+        <div class="scenery-beach" id="beachSide"></div>
         <div class="road" id="roadStrip"></div>
     </div>
 
     <script>
         const API_URL = "http://127.0.0.1:5000";
         let currentUser = null;
+
+        /* --- CYBERPUNK AUDIO ENGINE --- */
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const sfx = {
+            playTone: (freq, type, duration, vol = 0.1) => {
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+                osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                osc.start(); gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.stop(audioCtx.currentTime + duration);
+            },
+            hover: () => sfx.playTone(800, 'sine', 0.1, 0.05),
+            click: () => sfx.playTone(1200, 'square', 0.15, 0.05),
+            engine: () => { sfx.playTone(150, 'sawtooth', 0.5, 0.1); setTimeout(() => sfx.playTone(300, 'sawtooth', 1.2, 0.15), 200); },
+            crash: () => { sfx.playTone(100, 'square', 0.5, 0.3); setTimeout(() => sfx.playTone(50, 'sawtooth', 1, 0.4), 100); }
+        };
+
+        /* --- BACKGROUND MUSIC TRACK --- */
         const bgMusic = new Audio('song.mp3');
-        bgMusic.loop = true;
+        bgMusic.loop = true;  
+        bgMusic.volume = 0.4; 
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('mouseenter', sfx.hover);
+                btn.addEventListener('click', sfx.click);
+            });
+        });
 
         const els = {
             auth: document.getElementById('authOverlay'), login: document.getElementById('loginPanel'),
@@ -162,134 +268,183 @@
             gameArea: document.getElementById('gameArea')
         };
 
-        /* --- RESPONSIVE INPUT ENGINE --- */
-        let keys = { ArrowLeft: false, ArrowRight: false };
-        
-        document.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = true; });
-        document.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = false; });
-
-        // Mobile Touch Logic: Split screen left/right
-        document.addEventListener('touchstart', (e) => {
-            let touchX = e.touches[0].clientX;
-            if (touchX < window.innerWidth / 2) keys.ArrowLeft = true;
-            else keys.ArrowRight = true;
-        });
-        document.addEventListener('touchend', () => { keys.ArrowLeft = false; keys.ArrowRight = false; });
-
-        /* --- DATA & AUTH LOGIC --- */
         function toggleAuth(type) {
-            els.login.classList.toggle('hide', type === 'register');
-            els.register.classList.toggle('hide', type === 'login');
+            if(type === 'register') { els.login.classList.add('hide'); els.register.classList.remove('hide'); } 
+            else { els.register.classList.add('hide'); els.login.classList.remove('hide'); }
         }
 
+        /* --- SMART DATA LOGIC (OFFLINE FALLBACK) --- */
+
         async function handleRegister() {
+            let mobile = document.getElementById('regMobile').value;
             let username = document.getElementById('regUser').value;
             let password = document.getElementById('regPass').value;
-            let pilots = JSON.parse(localStorage.getItem('pilots') || "[]");
-            pilots.push({ username, password });
-            localStorage.setItem('pilots', JSON.stringify(pilots));
-            alert("Pilot registered locally."); toggleAuth('login');
+            if(!mobile || !username || !password) return alert("Fill all fields.");
+
+            try {
+                let response = await fetch(`${API_URL}/register`, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ mobile, username, password })
+                });
+                let data = await response.json();
+                if(data.success) { alert("Cloud Registration Success!"); toggleAuth('login'); } 
+                else { throw new Error(data.message); }
+            } catch(e) {
+                // FALLBACK: Store in Browser
+                let pilots = JSON.parse(localStorage.getItem('pilots') || "[]");
+                pilots.push({ username, password });
+                localStorage.setItem('pilots', JSON.stringify(pilots));
+                alert("OFFLINE MODE: Pilot registered on local device.");
+                toggleAuth('login');
+            }
         }
 
         async function handleLogin() {
             let username = document.getElementById('logUser').value;
             let password = document.getElementById('logPass').value;
-            let pilots = JSON.parse(localStorage.getItem('pilots') || "[]");
-            let user = pilots.find(p => p.username === username && p.password === password);
-            if(user) {
-                currentUser = user.username;
-                els.auth.classList.add('hide'); els.menu.classList.remove('hide');
-                document.getElementById('displayUsername').innerText = currentUser;
-            } else { alert("Invalid credentials."); }
+            try {
+                let response = await fetch(`${API_URL}/login`, {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username, password })
+                });
+                let data = await response.json();
+                if(data.success) { loginSuccess(data.username); } 
+                else { alert("Invalid Credentials"); }
+            } catch(e) {
+                // FALLBACK: Check Local Storage
+                let pilots = JSON.parse(localStorage.getItem('pilots') || "[]");
+                let user = pilots.find(p => p.username === username && p.password === password);
+                if(user) { loginSuccess(user.username + " [OFFLINE]"); } 
+                else { document.getElementById('loginError').style.display = 'block'; }
+            }
         }
+
+        function loginSuccess(name) {
+            currentUser = name;
+            els.auth.classList.add('hide'); els.menu.classList.remove('hide');
+            document.getElementById('displayUsername').innerText = currentUser;
+        }
+
+        function logout() { currentUser = null; els.menu.classList.add('hide'); els.auth.classList.remove('hide'); }
 
         async function showLeaderboard() {
             els.menu.classList.add('hide'); els.lb.classList.remove('hide');
-            let scores = JSON.parse(localStorage.getItem('highscores') || "[]");
-            let html = scores.sort((a,b)=>b.score-a.score).slice(0,5).map((s,i)=>`<li class='lb-item'>#${i+1} ${s.username} <span>${s.score}</span></li>`).join('');
-            document.getElementById('lbList').innerHTML = html || "No scores yet.";
+            try {
+                let response = await fetch(`${API_URL}/leaderboard`); 
+                let board = await response.json();
+                updateLBUI(board);
+            } catch(e) {
+                // FALLBACK: Local Leaderboard
+                let localScores = JSON.parse(localStorage.getItem('highscores') || "[]");
+                updateLBUI(localScores);
+            }
+        }
+
+        function updateLBUI(data) {
+            let html = "";
+            data.sort((a,b) => b.score - a.score).slice(0, 5).forEach((entry, i) => { 
+                html += `<li class='lb-item'><span>#${i+1} ${entry.user || entry.username}</span> <span style="color:#00f2ff;">${entry.score} PTS</span></li>`; 
+            });
+            document.getElementById('lbList').innerHTML = html || "<li>No data established on network.</li>";
         }
 
         function backToMenu() { els.lb.classList.add('hide'); els.menu.classList.remove('hide'); }
 
+        async function saveScoreToBackend(score) {
+            try { 
+                await fetch(`${API_URL}/score`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: currentUser, score: score }) }); 
+            } catch(e) { 
+                // FALLBACK: Save highscore locally
+                let localScores = JSON.parse(localStorage.getItem('highscores') || "[]");
+                localScores.push({ username: currentUser, score: score });
+                localStorage.setItem('highscores', JSON.stringify(localScores));
+            }
+        }
+
         /* --- GAME ENGINE --- */
-        let player = { speed: 5, score: 0, start: false, x: 0 };
+        const scoreDisplay = document.getElementById('score');
+        const roadStrip = document.getElementById('roadStrip');
+        const citySide = document.getElementById('citySide');
+        const beachSide = document.getElementById('beachSide');
+        const steeringWheel = document.getElementById('steeringWheel');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const speedRing = document.getElementById('speedRing');
+
+        let keys = { ArrowLeft: false, ArrowRight: false };
+        let player = { speed: 7, score: 0, start: false };
         let gameLoopReq;
 
-        function gamePlay() {
-            if(!player.start) return;
-            let car = document.querySelector('.player');
-            let road = document.querySelector('.road');
-            let roadRect = road.getBoundingClientRect();
-
-            // Movement Logic
-            let zRotation = 0;
-            let moveSpeed = player.speed * 0.8; 
-            if(keys.ArrowLeft && player.x > 0) { player.x -= moveSpeed; zRotation = -25; }
-            if(keys.ArrowRight && player.x < (roadRect.width - 45)) { player.x += moveSpeed; zRotation = 25; }
-            
-            car.style.left = player.x + 'px';
-            document.getElementById('steeringWheel').style.transform = `rotate(${zRotation}deg)`;
-
-            // Obstacle & Line Animation
-            document.querySelectorAll('.line').forEach(item => { 
-                item.y += player.speed; 
-                if(item.y > window.innerHeight) item.y = -100;
-                item.style.top = item.y + 'px';
-            });
-
-            document.querySelectorAll('.enemy').forEach(item => {
-                if(isCollide(car, item)) { crash(); return; }
-                item.y += player.speed * 0.6;
-                if(item.y > window.innerHeight) {
-                    item.y = -500;
-                    item.style.left = Math.random() * (roadRect.width - 45) + 'px';
-                }
-                item.style.top = item.y + 'px';
-            });
-
-            player.score++;
-            document.getElementById('score').innerText = player.score;
-            document.getElementById('speedDisplay').innerText = Math.floor(player.speed * 20);
-            if(player.score % 500 === 0) player.speed += 0.5;
-
-            gameLoopReq = window.requestAnimationFrame(gamePlay);
-        }
+        document.addEventListener('keydown', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = true; });
+        document.addEventListener('keyup', (e) => { if(keys.hasOwnProperty(e.key)) keys[e.key] = false; });
 
         function isCollide(a, b) {
             let aRect = a.getBoundingClientRect(); let bRect = b.getBoundingClientRect();
             return !((aRect.bottom < bRect.top) || (aRect.top > bRect.bottom) || (aRect.right < bRect.left) || (aRect.left > bRect.right));
         }
 
-        function startGame() {
-            bgMusic.play().catch(() => {});
-            els.menu.classList.add('hide'); els.gameArea.classList.remove('hide'); els.gameHUD.classList.remove('hide');
-            let road = document.querySelector('.road');
-            road.innerHTML = "";
-            player.start = true; player.score = 0; player.speed = 5; player.x = 50;
+        function gamePlay() {
+            if(!player.start) return;
+            let car = document.querySelector('.player');
 
-            for(let x=0; x<5; x++){ 
-                let l = document.createElement('div'); l.className='line'; l.y=(x*200); l.style.top=l.y+'px'; road.appendChild(l); 
-            }
+            document.querySelectorAll('.line').forEach(item => { if(item.y >= 1000) item.y -= 1050; item.y += player.speed; item.style.top = item.y + 'px'; });
+            document.querySelectorAll('.building').forEach(item => { if(item.y >= 1000) { item.y = -400 - (Math.random() * 300); item.style.left = (10 + Math.random() * 50) + 'px'; } item.y += player.speed; item.style.top = item.y + 'px'; });
+            document.querySelectorAll('.palm-tree').forEach(item => { if(item.y >= 1000) { item.y = -200 - (Math.random() * 600); item.style.left = (30 + Math.random() * 80) + 'px'; } item.y += player.speed; item.style.top = item.y + 'px'; });
+
+            document.querySelectorAll('.enemy').forEach(item => {
+                if(isCollide(car, item)) { crash(); return; }
+                if(item.y >= 1000) { item.y = -600; item.style.left = Math.floor(Math.random() * 345) + 'px'; }
+                item.y += player.speed * 0.7; item.style.top = item.y + 'px';
+            });
+
+            let zRotation = 0;
+            if(keys.ArrowLeft && player.x > 0) { player.x -= player.speed; zRotation = -60; }
+            if(keys.ArrowRight && player.x < 345) { player.x += player.speed; zRotation = 60; }
+            car.style.left = player.x + 'px';
+            steeringWheel.style.transform = `rotateX(30deg) rotateZ(${zRotation}deg)`;
+
+            player.score++; scoreDisplay.innerText = player.score;
+            if(player.score % 1000 === 0) player.speed++;
+
+            let displayKm = Math.floor(player.speed * 14);
+            speedDisplay.innerText = displayKm;
+            let ringRotation = -45 + (player.speed * 6);
+            if(ringRotation > 135) ringRotation = 135;
+            speedRing.style.transform = `rotate(${ringRotation}deg)`;
+
+            gameLoopReq = window.requestAnimationFrame(gamePlay);
+        }
+
+        function startGame() {
+            sfx.engine();
+            bgMusic.play().catch(e => console.log("Audio block"));
+            els.menu.classList.add('hide'); els.gameArea.classList.remove('hide'); els.gameHUD.classList.remove('hide');
+            roadStrip.innerHTML = ""; citySide.innerHTML = ""; beachSide.innerHTML = "";
+            player.start = true; player.score = 0; player.speed = 7;
+            
+            for(let x=0; x<7; x++){ let l = document.createElement('div'); l.className='line'; l.y=(x*150); l.style.top=l.y+'px'; roadStrip.appendChild(l); }
+            for(let x=0; x<4; x++){ let bld = document.createElement('div'); bld.className='building'; bld.style.height=(100+Math.random()*150)+'px'; bld.style.background='#34495e'; bld.y=(x*300); bld.style.top=bld.y+'px'; bld.style.left=(10+Math.random()*50)+'px'; citySide.appendChild(bld); }
+            for(let x=0; x<3; x++){ let tree = document.createElement('div'); tree.className='palm-tree'; tree.y=(x*400); tree.style.top=tree.y+'px'; tree.style.left=(30+Math.random()*80)+'px'; beachSide.appendChild(tree); }
 
             let pCar = document.createElement('div'); pCar.className='car player';
-            road.appendChild(pCar);
+            pCar.innerHTML = `<div class="tire fl"></div><div class="tire fr"></div><div class="tire bl"></div><div class="tire br"></div><div class="player-details"><div class="spoiler"></div><div class="cockpit"></div></div>`;
+            roadStrip.appendChild(pCar); player.x = 175; pCar.style.bottom = "50px";
 
-            for(let x=0; x<2; x++){
+            for(let x=0; x<3; x++){
                 let e = document.createElement('div'); e.className='car enemy';
-                e.y = (x + 1) * -400; e.style.left = '20px';
-                road.appendChild(e);
+                e.innerHTML = `<div class="tire fl"></div><div class="tire fr"></div><div class="tire bl"></div><div class="tire br"></div>`;
+                e.y = ((x+1)*350)*-1; e.style.left = Math.floor(Math.random()*345)+'px';
+                roadStrip.appendChild(e);
             }
             gameLoopReq = window.requestAnimationFrame(gamePlay);
         }
 
-        function crash() {
+        async function crash() {
+            sfx.crash();
+            bgMusic.pause(); bgMusic.currentTime = 0;
             player.start = false; window.cancelAnimationFrame(gameLoopReq);
-            let highscores = JSON.parse(localStorage.getItem('highscores') || "[]");
-            highscores.push({ username: currentUser, score: player.score });
-            localStorage.setItem('highscores', JSON.stringify(highscores));
-            alert("CRASHED! Score: " + player.score);
-            location.reload();
+            alert(`CRITICAL IMPACT. Score: ${player.score}`);
+            await saveScoreToBackend(player.score);
+            els.gameArea.classList.add('hide'); els.gameHUD.classList.add('hide'); els.menu.classList.remove('hide');
         }
     </script>
 </body>
