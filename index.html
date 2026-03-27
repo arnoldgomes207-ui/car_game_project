@@ -249,6 +249,11 @@
             crash: () => { sfx.playTone(100, 'square', 0.5, 0.3); setTimeout(() => sfx.playTone(50, 'sawtooth', 1, 0.4), 100); }
         };
 
+        /* --- BACKGROUND MUSIC TRACK --- */
+        const bgMusic = new Audio('song.mp3');
+        bgMusic.loop = true;  
+        bgMusic.volume = 0.4; 
+
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('button').forEach(btn => {
                 btn.addEventListener('mouseenter', sfx.hover);
@@ -268,20 +273,30 @@
             else { els.register.classList.add('hide'); els.login.classList.remove('hide'); }
         }
 
+        /* --- SMART DATA LOGIC (OFFLINE FALLBACK) --- */
+
         async function handleRegister() {
             let mobile = document.getElementById('regMobile').value;
             let username = document.getElementById('regUser').value;
             let password = document.getElementById('regPass').value;
             if(!mobile || !username || !password) return alert("Fill all fields.");
+
             try {
                 let response = await fetch(`${API_URL}/register`, {
                     method: "POST", headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ mobile, username, password })
                 });
                 let data = await response.json();
-                if(data.success) { alert("Registration successful! Initiating login..."); toggleAuth('login'); } 
-                else { document.getElementById('regError').innerText = data.message; document.getElementById('regError').style.display = 'block'; }
-            } catch(e) { document.getElementById('regError').innerText = "Server offline."; document.getElementById('regError').style.display = 'block'; }
+                if(data.success) { alert("Cloud Registration Success!"); toggleAuth('login'); } 
+                else { throw new Error(data.message); }
+            } catch(e) {
+                // FALLBACK: Store in Browser
+                let pilots = JSON.parse(localStorage.getItem('pilots') || "[]");
+                pilots.push({ username, password });
+                localStorage.setItem('pilots', JSON.stringify(pilots));
+                alert("OFFLINE MODE: Pilot registered on local device.");
+                toggleAuth('login');
+            }
         }
 
         async function handleLogin() {
@@ -293,12 +308,21 @@
                     body: JSON.stringify({ username, password })
                 });
                 let data = await response.json();
-                if(data.success) {
-                    currentUser = data.username;
-                    els.auth.classList.add('hide'); els.menu.classList.remove('hide');
-                    document.getElementById('displayUsername').innerText = currentUser;
-                } else { document.getElementById('loginError').style.display = 'block'; }
-            } catch(e) { document.getElementById('loginError').innerText = "Server offline."; document.getElementById('loginError').style.display = 'block'; }
+                if(data.success) { loginSuccess(data.username); } 
+                else { alert("Invalid Credentials"); }
+            } catch(e) {
+                // FALLBACK: Check Local Storage
+                let pilots = JSON.parse(localStorage.getItem('pilots') || "[]");
+                let user = pilots.find(p => p.username === username && p.password === password);
+                if(user) { loginSuccess(user.username + " [OFFLINE]"); } 
+                else { document.getElementById('loginError').style.display = 'block'; }
+            }
+        }
+
+        function loginSuccess(name) {
+            currentUser = name;
+            els.auth.classList.add('hide'); els.menu.classList.remove('hide');
+            document.getElementById('displayUsername').innerText = currentUser;
         }
 
         function logout() { currentUser = null; els.menu.classList.add('hide'); els.auth.classList.remove('hide'); }
@@ -306,18 +330,35 @@
         async function showLeaderboard() {
             els.menu.classList.add('hide'); els.lb.classList.remove('hide');
             try {
-                let response = await fetch(`${API_URL}/leaderboard`); let board = await response.json();
-                let html = "";
-                board.forEach((entry, i) => { html += `<li class='lb-item'><span>#${i+1} ${entry.user}</span> <span style="color:#00f2ff;">${entry.score} PTS</span></li>`; });
-                document.getElementById('lbList').innerHTML = html || "<li>No data established on network.</li>";
-            } catch(e) { document.getElementById('lbList').innerHTML = "<li>Network error. Server offline.</li>"; }
+                let response = await fetch(`${API_URL}/leaderboard`); 
+                let board = await response.json();
+                updateLBUI(board);
+            } catch(e) {
+                // FALLBACK: Local Leaderboard
+                let localScores = JSON.parse(localStorage.getItem('highscores') || "[]");
+                updateLBUI(localScores);
+            }
+        }
+
+        function updateLBUI(data) {
+            let html = "";
+            data.sort((a,b) => b.score - a.score).slice(0, 5).forEach((entry, i) => { 
+                html += `<li class='lb-item'><span>#${i+1} ${entry.user || entry.username}</span> <span style="color:#00f2ff;">${entry.score} PTS</span></li>`; 
+            });
+            document.getElementById('lbList').innerHTML = html || "<li>No data established on network.</li>";
         }
 
         function backToMenu() { els.lb.classList.add('hide'); els.menu.classList.remove('hide'); }
 
         async function saveScoreToBackend(score) {
-            try { await fetch(`${API_URL}/score`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: currentUser, score: score }) }); } 
-            catch(e) { console.log("Failed to save score"); }
+            try { 
+                await fetch(`${API_URL}/score`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: currentUser, score: score }) }); 
+            } catch(e) { 
+                // FALLBACK: Save highscore locally
+                let localScores = JSON.parse(localStorage.getItem('highscores') || "[]");
+                localScores.push({ username: currentUser, score: score });
+                localStorage.setItem('highscores', JSON.stringify(localScores));
+            }
         }
 
         /* --- GAME ENGINE --- */
@@ -325,8 +366,6 @@
         const roadStrip = document.getElementById('roadStrip');
         const citySide = document.getElementById('citySide');
         const beachSide = document.getElementById('beachSide');
-        
-        // HUD Elements
         const steeringWheel = document.getElementById('steeringWheel');
         const speedDisplay = document.getElementById('speedDisplay');
         const speedRing = document.getElementById('speedRing');
@@ -357,24 +396,19 @@
                 item.y += player.speed * 0.7; item.style.top = item.y + 'px';
             });
 
-            // HUD: Steering Wheel Logic
             let zRotation = 0;
             if(keys.ArrowLeft && player.x > 0) { player.x -= player.speed; zRotation = -60; }
             if(keys.ArrowRight && player.x < 345) { player.x += player.speed; zRotation = 60; }
             car.style.left = player.x + 'px';
-            
-            // Apply 3D tilt + turning rotation to the wheel
             steeringWheel.style.transform = `rotateX(30deg) rotateZ(${zRotation}deg)`;
 
             player.score++; scoreDisplay.innerText = player.score;
             if(player.score % 1000 === 0) player.speed++;
 
-            // HUD: Speedometer Logic
-            let displayKm = Math.floor(player.speed * 14); // Converts code speed to fake KM/H
+            let displayKm = Math.floor(player.speed * 14);
             speedDisplay.innerText = displayKm;
-            
             let ringRotation = -45 + (player.speed * 6);
-            if(ringRotation > 135) ringRotation = 135; // Cap the neon ring gauge
+            if(ringRotation > 135) ringRotation = 135;
             speedRing.style.transform = `rotate(${ringRotation}deg)`;
 
             gameLoopReq = window.requestAnimationFrame(gamePlay);
@@ -382,6 +416,7 @@
 
         function startGame() {
             sfx.engine();
+            bgMusic.play().catch(e => console.log("Audio block"));
             els.menu.classList.add('hide'); els.gameArea.classList.remove('hide'); els.gameHUD.classList.remove('hide');
             roadStrip.innerHTML = ""; citySide.innerHTML = ""; beachSide.innerHTML = "";
             player.start = true; player.score = 0; player.speed = 7;
@@ -405,8 +440,9 @@
 
         async function crash() {
             sfx.crash();
+            bgMusic.pause(); bgMusic.currentTime = 0;
             player.start = false; window.cancelAnimationFrame(gameLoopReq);
-            alert(`CRITICAL IMPACT. Uploading ${player.score} points to Network...`);
+            alert(`CRITICAL IMPACT. Score: ${player.score}`);
             await saveScoreToBackend(player.score);
             els.gameArea.classList.add('hide'); els.gameHUD.classList.add('hide'); els.menu.classList.remove('hide');
         }
