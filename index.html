@@ -157,6 +157,29 @@
         .wheel-spoke.left { top: 50%; left: 0; width: 50%; height: 16px; transform: translateY(-50%); }
         .wheel-spoke.right { top: 50%; right: 0; width: 50%; height: 16px; transform: translateY(-50%); }
         .wheel-spoke.bottom { bottom: 0; left: 50%; width: 16px; height: 50%; transform: translateX(-50%); }
+        #mobileControls {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+            z-index: 200;
+        }
+        #mobileControls button {
+            width: 80px;
+            height: 80px;
+            font-size: 30px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            border: 2px solid #00f2ff;
+        }
+        /* Replace your #gameArea and scenery sections with this */
+        #gameArea { width: 100%; max-width: 500px; height: 100vh; margin: auto; position: relative; overflow: hidden; background: black; }
+            .scenery-city, .scenery-beach { width: 15%; position: absolute; height: 100%; z-index: 1; }
+            .road { width: 70%; left: 15%; position: absolute; height: 100%; background: #242424; z-index: 2; }
+            .physical-dash { width: 100%; position: absolute; bottom: 20px; display: flex; justify-content: space-around; z-index: 100; }
 
     </style>
 </head>
@@ -225,6 +248,10 @@
         <div class="scenery-city" id="citySide"></div>
         <div class="scenery-beach" id="beachSide"></div>
         <div class="road" id="roadStrip"></div>
+    </div>
+    <div id="mobileControls" class="hide">
+    <button id="leftBtn">⬅</button>
+    <button id="rightBtn">➡</button>
     </div>
 
     <script>
@@ -416,6 +443,7 @@
 
         function startGame() {
             sfx.engine();
+            document.getElementById('mobileControls').classList.remove('hide');
             bgMusic.play().catch(e => console.log("Audio block"));
             els.menu.classList.add('hide'); els.gameArea.classList.remove('hide'); els.gameHUD.classList.remove('hide');
             roadStrip.innerHTML = ""; citySide.innerHTML = ""; beachSide.innerHTML = "";
@@ -440,12 +468,48 @@
 
         async function crash() {
             sfx.crash();
+            document.getElementById('mobileControls').classList.add('hide');
             bgMusic.pause(); bgMusic.currentTime = 0;
             player.start = false; window.cancelAnimationFrame(gameLoopReq);
             alert(`CRITICAL IMPACT. Score: ${player.score}`);
             await saveScoreToBackend(player.score);
             els.gameArea.classList.add('hide'); els.gameHUD.classList.add('hide'); els.menu.classList.remove('hide');
         }
+        /* --- MOBILE CONTROLS --- */
+            const leftBtn = document.getElementById('leftBtn');
+            const rightBtn = document.getElementById('rightBtn');
+
+            // LEFT BUTTON
+            leftBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys.ArrowLeft = true;
+            });
+
+            leftBtn.addEventListener('touchend', () => {
+                keys.ArrowLeft = false;
+            });
+
+            // RIGHT BUTTON
+            rightBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                keys.ArrowRight = true;
+            });
+
+            rightBtn.addEventListener('touchend', () => {
+                keys.ArrowRight = false;
+            });
+            /* Replace your event listeners with this */
+            // Laptop Keys
+            document.addEventListener('keydown', e => { if(keys.hasOwnProperty(e.key)) keys[e.key] = true; });
+            document.addEventListener('keyup', e => { if(keys.hasOwnProperty(e.key)) keys[e.key] = false; });
+
+            // Mobile Touch (Invisible Buttons Logic)
+            document.addEventListener('touchstart', e => {
+                let side = (e.touches[0].clientX < window.innerWidth / 2) ? 'ArrowLeft' : 'ArrowRight';
+                keys[side] = true;
+            });
+            document.addEventListener('touchend', () => { keys.ArrowLeft = false; keys.ArrowRight = false; });
+
     </script>
 </body>
 </html>

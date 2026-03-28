@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import json
 import os
@@ -20,6 +20,18 @@ def load_db():
 def save_db(data):
     with open(DB_FILE, 'w') as f:
         json.dump(data, f, indent=4)
+
+# --- NEW ROUTES FOR SERVING THE GAME AND MUSIC ---
+@app.route('/')
+def home():
+    # Serves the main game interface
+    return send_file('index.html')
+
+@app.route('/song.mp3')
+def serve_music():
+    # Serves the background music file
+    return send_file('song.mp3')
+# -------------------------------------------------
 
 @app.route('/register', methods=['POST'])
 def register():
